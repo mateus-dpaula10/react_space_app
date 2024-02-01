@@ -7,8 +7,9 @@ import bannerBackground from "../assets/banner.png"
 import Galeria from "./components/Galeria"
 
 import fotos from './fotos.json'
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import ModalZoom from "./components/ModalZoom"
+import Rodape from "./components/Rodape"
 
 const FundoGradiente = styled.div`
   min-height: 100vh;
@@ -36,35 +37,64 @@ const ConteudoGaleria = styled.section`
 const App = () => {
   const [fotosDaGaleria, setFotosDaGaleria] = useState(fotos)
   const [fotoSelecionada, setFotoSelecionada] = useState(null)
+  const [filtro, setFiltro] = useState('')
+  const [tag, setTag] = useState(0)
+  const [fotoComZoom, setFotoComZoom] = useState(null)  
+
+  useEffect(() => {
+    const fotosFiltradas = fotos.filter(foto => {
+      const filtroPorTag = !tag || foto.tagId === tag
+      const filtroPorTitulo = !filtro || foto.titulo.toLocaleLowerCase().includes(filtro.toLocaleLowerCase())
+      return filtroPorTag && filtroPorTitulo
+    })
+    setFotosDaGaleria(fotosFiltradas)
+  }, [filtro, tag])
 
   const aoAlternarFavorito = (foto) => {
-    console.log(foto)
+    if(foto.id === fotoSelecionada?.id){
+      setFotoComZoom({
+        ...fotoComZoom,
+        favorita: !fotoComZoom.favorita
+      })
+    }
+    setFotosDaGaleria(fotosDaGaleria.map(fotosDaGaleria => {
+      return {
+        ...fotosDaGaleria,
+        favorita: fotosDaGaleria.id === foto.id ? !foto.favorita : fotosDaGaleria.favorita
+      }
+    }))
   }
 
   return (
     <FundoGradiente>
       <EstilosGlobais />
       <AppContainer>
-        <Cabecalho />
+        <Cabecalho 
+          filtro={filtro}
+          setFiltro={setFiltro}
+        />
         <MainContainer>
           <BarraLateral />
           <ConteudoGaleria>
             <Banner
-              texto="A galeria mais completa de fotos do espaço!"
               backgroundImage={bannerBackground}
+              texto="A galeria mais completa de fotos do espaço!"
             />
             <Galeria 
-              aoFotoSelecionada={foto => setFotoSelecionada(foto)}
+              fotos={fotosDaGaleria}
+              aoFotoSelecionada={foto => setFotoComZoom(foto)}
               aoAlternarFavorito={aoAlternarFavorito} 
-              fotos={fotosDaGaleria} 
+              setTag={setTag} 
             />
           </ConteudoGaleria>
-        </MainContainer>
+        </MainContainer>        
       </AppContainer>
       <ModalZoom 
         foto={fotoSelecionada} 
         aoFechar={() => setFotoSelecionada(null)}
+        aoAlternarFavorito={aoAlternarFavorito}
       />
+      <Rodape />
     </FundoGradiente>
   )
 }

@@ -1,5 +1,12 @@
-import styled from "styled-components"
 import tags from "./tags.json"
+import { styled } from "styled-components"
+
+const BarraTags = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 64px;
+    margin-top: 56px;
+`
 
 const TagTitulo  = styled.h3`
     color: #D9D9D9;
@@ -22,11 +29,21 @@ const Tag = styled.button`
     }
 `
 
-const Tags = () => {
-    return <>
-        <TagTitulo>Busque por tags:</TagTitulo>        
-        {tags.map(tag => <Tag key={tag.id}>{tag.titulo}</Tag>)}        
-    </>
+const Div = styled.div`
+    display: flex;
+    gap: 24px;
+    justify-content: end;
+`
+
+const Tags = ({ setTag }) => {
+    return (
+        <BarraTags>
+            <TagTitulo>Busque por tags:</TagTitulo>        
+            <Div>
+                {tags.map(tag => <Tag key={tag.id} onClick={() => setTag(tag.tag)}>{tag.titulo}</Tag>)}   
+            </Div>
+        </BarraTags>
+    )
 }
 
 export default Tags
